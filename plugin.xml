@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension 
+		id="secproblem"
+		point="org.eclipse.core.resources.markers"
+		name="Security Violation">
+
+		<super type="org.eclipse.core.resources.problemmarker" />
+		<persistent value="false" />
+	</extension>
+	
+	<extension
+		point="org.eclipse.ui.startup">
+	</extension>
+	
+	<extension point="org.eclipse.ui.preferencePages">
+		<page id="com.espsecurityplugin.preferences.preferencespage"
+			name="ESP: Security Plugin"
+			class="com.espsecurityplugin.preferences.PreferencesPage" />
+ 	</extension>
+ 	
+	<extension point="org.eclipse.ui.editors.markerUpdaters">
+		<updater 
+				id="com.espsecurityplugin.MarkerUpdater"
+				class="com.espsecurityplugin.marker.SecurityMarkerUtilities">
+		</updater>
+	</extension>
+
+</plugin>

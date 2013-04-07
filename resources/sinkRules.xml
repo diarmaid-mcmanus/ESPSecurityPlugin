@@ -1,0 +1,4 @@
+<!-- Java keys for Sink methods -->
+<keys>
+	<key>Ljava/util/logging/Logger;.log(Ljava/util/logging/Level;Ljava/lang/String;)V</key>
+</keys>
