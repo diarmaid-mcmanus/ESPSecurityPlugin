@@ -7,11 +7,15 @@ import java.util.Vector;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayAccess;
+import org.eclipse.jdt.core.dom.ArrayCreation;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
@@ -48,6 +52,114 @@ public class TaintAnalyser extends ASTVisitor {
 	private boolean expressionContainsTaintedVariable(Expression node) {
 		if(node instanceof SimpleName) {
 			return expressionContainsTaintedVariable((SimpleName) node);
+		} else if (node instanceof ArrayAccess) {
+			return expressionContainsTaintedVariable((ArrayAccess)node);
+		} else if (node instanceof ArrayCreation) {
+			return expressionContainsTaintedVariable((ArrayCreation)node);
+		} else if (node instanceof ClassInstanceCreation) {
+			return expressionContainsTaintedVariable((ClassInstanceCreation)node);
+		} else if (node instanceof ConditionalExpression) {
+			return expressionContainsTaintedVariable((ConditionalExpression)node);
+		} else if(node instanceof FieldAccess) {
+			return expressionContainsTaintedVariable((FieldAccess)node);
+		} else if(node instanceof InfixExpression) {
+			return expressionContainsTaintedVariable((InfixExpression) node);
+		} else if(node instanceof MethodInvocation) {
+			return expressionContainsTaintedVariable((MethodInvocation) node);
+		}  else if(node instanceof ParenthesizedExpression) {
+			return expressionContainsTaintedVariable((ParenthesizedExpression) node);
+		} else if(node instanceof PostfixExpression) {
+			return expressionContainsTaintedVariable((PostfixExpression) node);
+		} else if(node instanceof PrefixExpression) {
+			return expressionContainsTaintedVariable((PrefixExpression) node);
+		} else if(node instanceof SuperMethodInvocation) {
+			return expressionContainsTaintedVariable((SuperMethodInvocation) node);
+		}
+		
+		return false;
+	}
+	
+	private boolean expressionContainsTaintedVariable(ArrayAccess node) {
+		if(expressionContainsTaintedVariable(node.getArray())) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean expressionContainsTaintedVariable(ArrayCreation node) {
+		if(expressionContainsTaintedVariable(node.getInitializer())) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean expressionContainsTaintedVariable(ArrayInitializer node) {
+		for(Object expression : node.expressions()) {
+			if(expressionContainsTaintedVariable((Expression)expression)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean expressionContainsTaintedVariable(ClassInstanceCreation node) {
+		for(Object expression : node.arguments()) {
+			if(expressionContainsTaintedVariable((Expression) expression)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean expressionContainsTaintedVariable(ConditionalExpression node) {
+		if(expressionContainsTaintedVariable(node.getThenExpression()) 
+				|| expressionContainsTaintedVariable(node.getElseExpression())) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean expressionContainsTaintedVariable(FieldAccess node) {
+		if(expressionContainsTaintedVariable(node.getExpression())) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean expressionContainsTaintedVariable(InfixExpression node) {
+		if(expressionContainsTaintedVariable(node.getLeftOperand()) ||
+				expressionContainsTaintedVariable(node.getRightOperand())) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean expressionContainsTaintedVariable(MethodInvocation node) {
+		for(Object expression : node.arguments()) {
+			if(expressionContainsTaintedVariable((Expression) expression)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean expressionContainsTaintedVariable(ParenthesizedExpression node) {
+		return expressionContainsTaintedVariable(node.getExpression());
+	}
+	
+	private boolean expressionContainsTaintedVariable(PostfixExpression node) {
+		return expressionContainsTaintedVariable(node.getOperand());
+	}
+	
+	private boolean expressionContainsTaintedVariable(PrefixExpression node) {
+		return expressionContainsTaintedVariable(node.getOperand());
+	}
+	
+	private boolean expressionContainsTaintedVariable(SuperMethodInvocation node) {
+		for(Object expression : node.arguments()) {
+			if(expressionContainsTaintedVariable((Expression)expression)) {
+				return true;
+			}
 		}
 		return false;
 	}
