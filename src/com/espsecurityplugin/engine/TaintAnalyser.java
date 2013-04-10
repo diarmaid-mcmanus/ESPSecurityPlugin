@@ -56,6 +56,8 @@ public class TaintAnalyser extends ASTVisitor {
 			return expressionContainsTaintedVariable((ArrayAccess)node);
 		} else if (node instanceof ArrayCreation) {
 			return expressionContainsTaintedVariable((ArrayCreation)node);
+		} else if (node instanceof CastExpression) {
+			return expressionContainsTaintedVariable((CastExpression) node);
 		} else if (node instanceof ClassInstanceCreation) {
 			return expressionContainsTaintedVariable((ClassInstanceCreation)node);
 		} else if (node instanceof ConditionalExpression) {
@@ -101,6 +103,11 @@ public class TaintAnalyser extends ASTVisitor {
 		}
 		return false;
 	}
+	
+	private boolean expressionContainsTaintedVariable(CastExpression node) {
+		return expressionContainsTaintedVariable(node.getExpression());
+	}
+
 	
 	private boolean expressionContainsTaintedVariable(ClassInstanceCreation node) {
 		for(Object expression : node.arguments()) {
