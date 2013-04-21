@@ -35,7 +35,7 @@ public class EclipseMarkerFeedback implements FeedbackInstance {
 	
 	@Override
 	public String toString() {
-		return this.message + " [" + this.startPosition + "->" + (this.startPosition+this.offset) +"]";
+		return this.getMessage() + " [" + this.getStartPosition() + "->" + this.getEndPosition() +"]";
 	}
 
 	@Override

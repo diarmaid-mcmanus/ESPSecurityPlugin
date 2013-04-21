@@ -27,7 +27,7 @@ public class EclipseMarkerFeedbackReporter implements FeedbackReporter {
 		// Get all markers on the resource in question
 		// place the marker
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+		map.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
 		map.put(IMarker.MESSAGE, feedbackInstance.getMessage());
 		map.put(IMarker.CHAR_START, feedbackInstance.getStartPosition());
 		map.put(IMarker.CHAR_END, feedbackInstance.getEndPosition());
