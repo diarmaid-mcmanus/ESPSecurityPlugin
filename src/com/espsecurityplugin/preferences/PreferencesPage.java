@@ -15,6 +15,7 @@ public class PreferencesPage extends FieldEditorPreferencePage implements IWorkb
 	IntegerFieldEditor reconciliationDelay;
 	FileFieldEditor sourceRulesFile;
 	FileFieldEditor sinkRulesFile;
+	FileFieldEditor validationRulesFile;
 	BooleanFieldEditor enabled;
 	
 	public PreferencesPage() {
@@ -46,10 +47,15 @@ public class PreferencesPage extends FieldEditorPreferencePage implements IWorkb
 				"sinkrules.location", "&Sink Rule location:", false, getFieldEditorParent());
 		sinkRulesFile.setEmptyStringAllowed(true);
 		
+		validationRulesFile = new FileFieldEditor(
+				"sinkrules.location", "&Validation Rule location:", false, getFieldEditorParent());
+		validationRulesFile.setEmptyStringAllowed(true);
+		
 		addField(enabled);
 		addField(reconciliationDelay);
 		addField(sourceRulesFile);
 		addField(sinkRulesFile);
+		addField(validationRulesFile);
 		
 	}
 	
@@ -59,6 +65,7 @@ public class PreferencesPage extends FieldEditorPreferencePage implements IWorkb
 		reconciliationDelay.store();
 		sourceRulesFile.store();
 		sinkRulesFile.store();
+		validationRulesFile.store();
 		return super.performOk();
 	}
 	

@@ -26,32 +26,19 @@ public class TaintedSinkMatcher implements Runnable {
 	private final Logger LOG = Activator.getLogger();
 	
 	private ASTVisitor sourceAnalyser;
-	private ASTVisitor taintAnalyser;
-	private ASTVisitor sinkAnalyser;
 	private FeedbackReporter feedbackReporter;
 	
 	public TaintedSinkMatcher() {
 		try {
-			sourceAnalyser = new SourceAnalyser();
+			sourceAnalyser = new SourceSinkAnalyser();
 		} catch (IOException e) {
-			LOG.log(Level.WARNING, "Error setting up Source Analyser: " + e.getMessage());
+			LOG.log(Level.WARNING, "ioe");
 		} catch (ParserConfigurationException e) {
-			LOG.log(Level.WARNING, "Error setting up Source Analyser: " + e.getMessage());
+			LOG.log(Level.WARNING, "pce");
 		} catch (SAXException e) {
-			LOG.log(Level.WARNING, "Error setting up Source Analyser: " + e.getMessage());
+			LOG.log(Level.WARNING, "se");
 		}
 		
-		try {
-			sinkAnalyser = new SinkAnalyser();
-		} catch (IOException e) {
-			LOG.log(Level.WARNING, "Error setting up Sink Analyser: " + e.getMessage());
-		} catch (ParserConfigurationException e) {
-			LOG.log(Level.WARNING, "Error setting up Sink Analyser: " + e.getMessage());
-		} catch (SAXException e) {
-			LOG.log(Level.WARNING, "Error setting up Sink Analyser: " + e.getMessage());
-		}
-		
-		taintAnalyser = new TaintAnalyser();
 		feedbackReporter = new EclipseMarkerFeedbackReporter();
 	}
 	
@@ -59,47 +46,46 @@ public class TaintedSinkMatcher implements Runnable {
 
 	@Override
 	public void run() {
+		LOG.log(Level.INFO, "Entering run");
 		// Clear the markers. Otherwise, when we disable the plugin, they'll hang around forever.
 		try {
+			LOG.log(Level.INFO, "Clearing markers");
 			ConcreteContextModel.getContextModel().getResource().deleteMarkers("ESPSecurityPlugin.secproblem", true, IResource.DEPTH_ZERO);
-			((SourceAnalyser) sourceAnalyser).init();
-			((SinkAnalyser) sinkAnalyser).init();
 		} catch (CoreException e) {
 			LOGGER.log(Level.WARNING, e.getMessage());
 		}
-		
+		LOG.log(Level.INFO, "Checking to see if ESP enabled...");
 		// next ensure we're enabled
 		Boolean disabled = Activator.getDefault().getPreferenceStore().getBoolean("esp.disabled");
 		if(disabled) {
 			// Don't create the AST, dn't analyse.
+			LOG.log(Level.INFO, "ESP is currently disabled!!!");
 			return;
 		} 
-		
+		LOG.log(Level.INFO, "ESP is currently enabled, generating AST");
 		
 		ASTParser astParser = ASTParser.newParser(AST.JLS4);
 		astParser.setKind(ASTParser.K_COMPILATION_UNIT);
 		astParser.setSource(ConcreteContextModel.getContextModel().getCompilationUnit());
 		astParser.setResolveBindings(true);
 		CompilationUnit target = (CompilationUnit) astParser.createAST(null); // TODO IProgressMonitor
+		LOG.log(Level.INFO, "AST generated. analysing...");
 		
 		// now run the SourceAnalyser, TaintAnalyser and SinkAnalyser in order
 		target.accept(sourceAnalyser);
-		Collection<String> sourceVars = ((SourceAnalyser) sourceAnalyser).getTaintedVariables();
-		((TaintAnalyser) taintAnalyser).setTaintedVariables(sourceVars); // TODO ;_; fix this line
-		
-		target.accept(taintAnalyser);
-		Collection<String> taintedVars = ((TaintAnalyser) taintAnalyser).getTaintedVariables();
-		((SinkAnalyser) sinkAnalyser).setTaintedVariables(taintedVars);
-		
-		target.accept(sinkAnalyser);
-		Collection<FeedbackInstance> feedbackList = ((SinkAnalyser) sinkAnalyser).getFeedback();
+		LOG.log(Level.INFO, "Analysis finished, getting feedback.");
+		Collection<FeedbackInstance> feedbackList = ((SourceSinkAnalyser) sourceAnalyser).getFeedback();
+		LOG.log(Level.INFO, "Looping through feedback list, size: " + feedbackList.size());
 		for(FeedbackInstance feedback : feedbackList) {
+			LOG.log(Level.INFO, "Feedback: " + feedback.toString());
 			try {
 				feedbackReporter.sendFeedback(feedback);
 			} catch (Exception e) {
-				Activator.getLogger().log(Level.WARNING, e.getMessage());
+				LOG.log(Level.WARNING, "Could not send feedback: " + e.getMessage());
 			}
 		}
+		// Now, clear the three lists.
+		((SourceSinkAnalyser) sourceAnalyser).cleanup();
 		
 	}
 
