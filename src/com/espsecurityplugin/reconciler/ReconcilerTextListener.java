@@ -17,7 +17,7 @@ import org.xml.sax.SAXException;
 
 import com.espsecurityplugin.activator.Activator;
 import com.espsecurityplugin.engine.TaintedSinkMatcher;
-import com.espsecurityplugin.feedback.ConcreteContextModel;
+import com.espsecurityplugin.feedback.internal.ConcreteContextModel;
 
 
 public class ReconcilerTextListener implements IDocumentListener {

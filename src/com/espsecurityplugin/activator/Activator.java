@@ -23,6 +23,8 @@ import com.espsecurityplugin.reconciler.StaticAnalysisPartListener;
 
 /**
  * The activator class controls the plug-in life cycle
+ * 
+ * TODO currently exporting the Activator package. Refactor so I don't have to do this
  */
 public class Activator extends AbstractUIPlugin implements IStartup {
 
@@ -43,7 +45,13 @@ public class Activator extends AbstractUIPlugin implements IStartup {
 		// set up local classes and other stuff I need
 		initalizeLocalClasses();
 		
-		// Create a UIJob for initializing the plugin
+		/*
+		 *  Create a UIJob for initializing the plugin
+		 *  At a high level:
+		 *  	* Adds something to track what file's open (StaticAnalysisPartListener)
+		 *  	* Keeps track of when to execute static analysis (ReconcilerTextListener)
+		 *  	* Generates AST & passes to visitor, collects results & sends to Feedback Reporter (TaintedSinkMatcher) (I need better names...)
+		 */
 		final UIJob job = new UIJob("ESP: Security Plugin Init Job") {
 			
 			@Override

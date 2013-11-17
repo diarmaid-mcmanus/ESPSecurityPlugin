@@ -14,3 +14,7 @@ Require-Bundle: org.eclipse.ui,
  org.junit
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.espsecurityplugin.engine,
+ com.espsecurityplugin.feedback,
+ com.espsecurityplugin.feedback.internal
+Export-Package: com.espsecurityplugin.activator
