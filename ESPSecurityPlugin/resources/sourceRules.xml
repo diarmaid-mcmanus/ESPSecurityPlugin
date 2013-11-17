@@ -1,0 +1,7 @@
+<!-- Java keys for Source methods -->
+<keys>
+	<key>Ljavax/servlet/http/HttpServletRequest;.getQueryString()Ljava/lang/String;</key>
+	<key>Ljavax/servlet/http/HttpServletRequest;.getCookies()[Ljavax/servlet/http/Cookie;</key>
+	<key>Ljavax/servlet/http/HttpServletRequest;.getHeader(Ljava/lang/String;)Ljava/lang/String;</key>
+	<key>Ljavax/servlet/http/ServletRequest;.getParameter(Ljava/lang/String;)Ljava/lang/String;</key>
+</keys>
