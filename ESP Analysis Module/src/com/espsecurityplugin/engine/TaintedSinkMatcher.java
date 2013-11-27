@@ -9,6 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -55,7 +56,8 @@ public class TaintedSinkMatcher implements Runnable {
 		}
 		LOG.log(Level.INFO, "Checking to see if ESP enabled...");
 		// next ensure we're enabled
-		Boolean disabled = false; // TODO fix Activator.getDefault().getPreferenceStore().getBoolean("esp.disabled");
+		Boolean disabled = Platform.getPreferencesService().getBoolean("ESPSecurityPlugin", "esp.disabled", false, null);
+
 		if(disabled) {
 			// Don't create the AST, dn't analyse.
 			LOG.log(Level.INFO, "ESP is currently disabled!!!");
