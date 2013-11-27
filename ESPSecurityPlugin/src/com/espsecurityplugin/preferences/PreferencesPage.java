@@ -48,7 +48,7 @@ public class PreferencesPage extends FieldEditorPreferencePage implements IWorkb
 		sinkRulesFile.setEmptyStringAllowed(true);
 		
 		validationRulesFile = new FileFieldEditor(
-				"sinkrules.location", "&Validation Rule location:", false, getFieldEditorParent());
+				"validationrules.location", "&Validation Rule location:", false, getFieldEditorParent());
 		validationRulesFile.setEmptyStringAllowed(true);
 		
 		addField(enabled);

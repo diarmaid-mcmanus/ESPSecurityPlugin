@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayAccess;
@@ -49,14 +50,30 @@ public class SourceSinkAnalyser extends ASTVisitor {
 		
 		public SourceSinkAnalyser() throws IOException, ParserConfigurationException, SAXException {
 			// get rules file from properties
-			String sourceRuleLocation = "resources/sourceRules.xml"; //Activator.getDefault().getPreferenceStore().getString("sourcerules.location");
-			sourceKeys = RuleLoader.loadRules(sourceRuleLocation, true);
+			String sourceRuleLocation = Platform.getPreferencesService().getString("ESPSecurityPlugin", "sourcerules.location", null, null);
+			String defaultSourceRuleLocation = "resources/sourceRules.xml"; //Activator.getDefault().getPreferenceStore().getString("sourcerules.location");
+			if(sourceRuleLocation == null) {
+				sourceKeys = RuleLoader.loadRules(defaultSourceRuleLocation, true);
+			} else {
+				sourceKeys = RuleLoader.loadRules(sourceRuleLocation, false);
+			}
 			
-			String sinkRuleLocation = "resources/sinkRules.xml"; //Activator.getDefault().getPreferenceStore().getString("sinkrules.location");
-			sinkKeys = RuleLoader.loadRules(sinkRuleLocation, true);
+			String sinkRuleLocation = Platform.getPreferencesService().getString("ESPSecurityPlugin", "sinkrules.location", null, null);
+			String defaultSinkRuleLocation = "resources/sinkRules.xml"; //Activator.getDefault().getPreferenceStore().getString("sinkrules.location");
+			if(sinkRuleLocation == null) {
+				sinkKeys = RuleLoader.loadRules(defaultSinkRuleLocation, true);
+			} else {
+				sinkKeys = RuleLoader.loadRules(sinkRuleLocation, false);
+			}
 			
-			String validationRuleLocation = "resources/validationRules.xml"; //Activator.getDefault().getPreferenceStore().getString("sinkrules.location");
-			validationKeys = RuleLoader.loadRules(validationRuleLocation, true);
+			String validationRuleLocation = Platform.getPreferencesService().getString("ESPSecurityPlugin", "validationrules.location", null, null);
+			String defaultValidationRuleLocation = "resources/validationRules.xml"; //Activator.getDefault().getPreferenceStore().getString("sinkrules.location");
+			if(validationRuleLocation == null) {
+				validationKeys = RuleLoader.loadRules(defaultValidationRuleLocation, true);
+			} else {
+				validationKeys = RuleLoader.loadRules(validationRuleLocation, false);
+			}
+			
 			
 			feedbackList = new ArrayList<FeedbackInstance>();
 			taintedVariables = new ArrayList<String>();
