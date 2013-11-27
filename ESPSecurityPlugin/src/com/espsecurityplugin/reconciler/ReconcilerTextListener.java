@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.text.DocumentEvent;
@@ -15,7 +16,6 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.xml.sax.SAXException;
 
-import com.espsecurityplugin.activator.Activator;
 import com.espsecurityplugin.engine.TaintedSinkMatcher;
 import com.espsecurityplugin.feedback.ContextFactory;
 import com.espsecurityplugin.feedback.ContextModel;
@@ -76,8 +76,7 @@ public class ReconcilerTextListener implements IDocumentListener {
 	 * running, cancel and reschedule it.
 	 */
 	private void scheduleTask() {
-		timeBeforeReconcile = Activator.getDefault().getPreferenceStore().
-				getInt("reconciliation.delay");
+		timeBeforeReconcile = Platform.getPreferencesService().getInt("ESPSecurityPlugin", "reconcilliation.delay", 500, null);
 		if(task != null) {
 			task.cancel(false);
 			pool.purge();
