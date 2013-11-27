@@ -15,10 +15,11 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.xml.sax.SAXException;
 
+import com.espsecurityplugin.feedback.ContextFactory;
+import com.espsecurityplugin.feedback.ContextModel;
 import com.espsecurityplugin.feedback.FeedbackInstance;
 import com.espsecurityplugin.feedback.FeedbackReporter;
-import com.espsecurityplugin.feedback.internal.ConcreteContextModel;
-import com.espsecurityplugin.feedback.internal.EclipseMarkerFeedbackReporter;
+import com.espsecurityplugin.feedback.FeedbackReporterFactory;
 
 public class TaintedSinkMatcher implements Runnable {
 	
@@ -26,6 +27,7 @@ public class TaintedSinkMatcher implements Runnable {
 	
 	private ASTVisitor sourceAnalyser;
 	private FeedbackReporter feedbackReporter;
+	private ContextModel contextModel = ContextFactory.getInstance();
 	
 	public TaintedSinkMatcher() {
 		try {
@@ -38,7 +40,7 @@ public class TaintedSinkMatcher implements Runnable {
 			LOG.log(Level.WARNING, "se");
 		}
 		
-		feedbackReporter = new EclipseMarkerFeedbackReporter();
+		feedbackReporter = FeedbackReporterFactory.getFeedbackReporter();
 	}
 	
 	@Override
@@ -47,7 +49,7 @@ public class TaintedSinkMatcher implements Runnable {
 		// Clear the markers. Otherwise, when we disable the plugin, they'll hang around forever.
 		try {
 			LOG.log(Level.INFO, "Clearing markers");
-			ConcreteContextModel.getContextModel().getResource().deleteMarkers("ESPSecurityPlugin.secproblem", true, IResource.DEPTH_ZERO);
+			contextModel.getResource().deleteMarkers("ESPSecurityPlugin.secproblem", true, IResource.DEPTH_ZERO);
 		} catch (CoreException e) {
 			LOG.log(Level.WARNING, e.getMessage());
 		}
@@ -63,7 +65,7 @@ public class TaintedSinkMatcher implements Runnable {
 		
 		ASTParser astParser = ASTParser.newParser(AST.JLS4);
 		astParser.setKind(ASTParser.K_COMPILATION_UNIT);
-		astParser.setSource(ConcreteContextModel.getContextModel().getCompilationUnit());
+		astParser.setSource(contextModel.getCompilationUnit());
 		astParser.setResolveBindings(true);
 		CompilationUnit target = (CompilationUnit) astParser.createAST(null); // TODO IProgressMonitor
 		LOG.log(Level.INFO, "AST generated. analysing...");

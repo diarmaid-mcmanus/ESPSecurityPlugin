@@ -17,7 +17,8 @@ import org.xml.sax.SAXException;
 
 import com.espsecurityplugin.activator.Activator;
 import com.espsecurityplugin.engine.TaintedSinkMatcher;
-import com.espsecurityplugin.feedback.internal.ConcreteContextModel;
+import com.espsecurityplugin.feedback.ContextFactory;
+import com.espsecurityplugin.feedback.ContextModel;
 
 
 public class ReconcilerTextListener implements IDocumentListener {
@@ -26,6 +27,7 @@ public class ReconcilerTextListener implements IDocumentListener {
 	private ScheduledThreadPoolExecutor pool;
 	private ScheduledFuture<?> task;
 	private long timeBeforeReconcile;
+	private ContextModel contextModel = ContextFactory.getInstance();
 	
 	/*
 	 * Change the pattern matcher below
@@ -39,10 +41,10 @@ public class ReconcilerTextListener implements IDocumentListener {
 		unhook();
 		ICompilationUnit iCU = JavaUI.getWorkingCopyManager().getWorkingCopy(editor.getEditorInput());
 		IDocumentProvider provider = editor.getDocumentProvider();
-		ConcreteContextModel.getContextModel().setDocument(provider.getDocument(editor.getEditorInput()));
-		ConcreteContextModel.getContextModel().setCompilationUnit(iCU);
+		contextModel.setDocument(provider.getDocument(editor.getEditorInput()));
+		contextModel.setCompilationUnit(iCU);
 		// Now we have the document, add self as a listener.
-		ConcreteContextModel.getContextModel().getDocument().addDocumentListener(this);
+		contextModel.getDocument().addDocumentListener(this);
 		scheduleTask();
 	}
 	
@@ -51,8 +53,8 @@ public class ReconcilerTextListener implements IDocumentListener {
 	 * running on that document.
 	 */
 	public void unhook() {
-		if(ConcreteContextModel.getContextModel().getDocument() != null) {
-			ConcreteContextModel.getContextModel().getDocument().removeDocumentListener(this);
+		if(contextModel.getDocument() != null) {
+			contextModel.getDocument().removeDocumentListener(this);
 		}
 		if(task != null) {
 			task.cancel(false);

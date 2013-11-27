@@ -5,7 +5,6 @@ Bundle-SymbolicName: ESP_Analysis_Module
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.espsecurityplugin.feedback,
- com.espsecurityplugin.feedback.internal,
  com.espsecurityplugin.rules
 Require-Bundle: org.eclipse.core.resources;bundle-version="3.8.1",
  org.eclipse.core.runtime;bundle-version="3.8.0",

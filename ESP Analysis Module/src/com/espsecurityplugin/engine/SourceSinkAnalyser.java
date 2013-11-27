@@ -31,8 +31,8 @@ import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.xml.sax.SAXException;
 
+import com.espsecurityplugin.feedback.FeedbackFactory;
 import com.espsecurityplugin.feedback.FeedbackInstance;
-import com.espsecurityplugin.feedback.internal.EclipseMarkerFeedback;
 import com.espsecurityplugin.rules.RuleLoader;
 
 // TODO move all the rule loading below into a module
@@ -366,7 +366,7 @@ public class SourceSinkAnalyser extends ASTVisitor {
 		}
 
 		private void createFeedback(ASTNode node) {
-			FeedbackInstance feedback = new EclipseMarkerFeedback();
+			FeedbackInstance feedback = FeedbackFactory.getFeedbackInstance();
 			feedback.setMessage("Validate data before using it!"); // TODO configurable message
 			feedback.setStartPosition(node.getStartPosition());
 			feedback.setOffset(node.getLength());

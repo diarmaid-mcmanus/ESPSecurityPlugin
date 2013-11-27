@@ -8,13 +8,15 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 
+import com.espsecurityplugin.feedback.ContextFactory;
+import com.espsecurityplugin.feedback.ContextModel;
 import com.espsecurityplugin.feedback.FeedbackInstance;
 import com.espsecurityplugin.feedback.FeedbackReporter;
 
 
 public class EclipseMarkerFeedbackReporter implements FeedbackReporter {
 	
-//	private final Logger LOG = Activator.getLogger();
+	private ContextModel contextModel = ContextFactory.getInstance();
 	
 	public EclipseMarkerFeedbackReporter() {
 	}
@@ -30,7 +32,7 @@ public class EclipseMarkerFeedbackReporter implements FeedbackReporter {
 		map.put(IMarker.CHAR_END, feedbackInstance.getEndPosition());
 		
 		try {
-			MarkerUtilities.createMarker(ConcreteContextModel.getContextModel().getResource(), map, "ESPSecurityPlugin.secproblem");
+			MarkerUtilities.createMarker(contextModel.getResource(), map, "ESPSecurityPlugin.secproblem");
 		} catch (CoreException e) {
 //			LOG.log(Level.INFO, "Could not create marker: " + e.getMessage());
 		}
