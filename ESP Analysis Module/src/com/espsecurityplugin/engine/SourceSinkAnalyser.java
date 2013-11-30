@@ -3,6 +3,7 @@ package com.espsecurityplugin.engine;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Vector;
 
@@ -35,15 +36,16 @@ import org.xml.sax.SAXException;
 import com.espsecurityplugin.feedback.FeedbackFactory;
 import com.espsecurityplugin.feedback.FeedbackInstance;
 import com.espsecurityplugin.rules.RuleLoader;
+import com.espsecurityplugin.rules.model.Rule;
 
 // TODO move all the rule loading below into a module
 public class SourceSinkAnalyser extends ASTVisitor {
 	
 	// find based on QualifiedName. We've resolved bindings.
 	
-		Collection<String> sourceKeys;
-		Collection<String> sinkKeys;
-		Collection<String> validationKeys;
+		Collection<Rule> sourceKeys;
+		Collection<Rule> sinkKeys;
+		Collection<Rule> validationKeys;
 		List<String> taintedVariables;
 		
 		Collection<FeedbackInstance> feedbackList;
@@ -52,26 +54,27 @@ public class SourceSinkAnalyser extends ASTVisitor {
 			// get rules file from properties
 			String sourceRuleLocation = Platform.getPreferencesService().getString("ESPSecurityPlugin", "sourcerules.location", null, null);
 			String defaultSourceRuleLocation = "resources/sourceRules.xml"; //Activator.getDefault().getPreferenceStore().getString("sourcerules.location");
-			if(sourceRuleLocation == null) {
-				sourceKeys = RuleLoader.loadRules(defaultSourceRuleLocation, true);
-			} else {
+			try {
 				sourceKeys = RuleLoader.loadRules(sourceRuleLocation, false);
+			} catch (EmptyStackException exception) {
+				sourceKeys = RuleLoader.loadRules(defaultSourceRuleLocation, true);
+				// TODO raise an alert here.
 			}
 			
 			String sinkRuleLocation = Platform.getPreferencesService().getString("ESPSecurityPlugin", "sinkrules.location", null, null);
 			String defaultSinkRuleLocation = "resources/sinkRules.xml"; //Activator.getDefault().getPreferenceStore().getString("sinkrules.location");
-			if(sinkRuleLocation == null) {
-				sinkKeys = RuleLoader.loadRules(defaultSinkRuleLocation, true);
-			} else {
+			try {
 				sinkKeys = RuleLoader.loadRules(sinkRuleLocation, false);
+			} catch (EmptyStackException exception) {
+				sinkKeys = RuleLoader.loadRules(defaultSinkRuleLocation, true);
 			}
 			
 			String validationRuleLocation = Platform.getPreferencesService().getString("ESPSecurityPlugin", "validationrules.location", null, null);
 			String defaultValidationRuleLocation = "resources/validationRules.xml"; //Activator.getDefault().getPreferenceStore().getString("sinkrules.location");
-			if(validationRuleLocation == null) {
-				validationKeys = RuleLoader.loadRules(defaultValidationRuleLocation, true);
-			} else {
+			try {
 				validationKeys = RuleLoader.loadRules(validationRuleLocation, false);
+			} catch (EmptyStackException exception) {
+				validationKeys = RuleLoader.loadRules(defaultValidationRuleLocation, true);
 			}
 			
 			
@@ -112,21 +115,26 @@ public class SourceSinkAnalyser extends ASTVisitor {
 			if(methodBinding == null) return true;
 			String nodeKey = methodBinding.getKey();
 			
-			for(String sinkKey : sinkKeys) {
-				if(sinkKey.equals(nodeKey)) {
-					// is an argument a taintedVar?
-					for(Object expression : node.arguments()) {
-						for(String taintedVar : taintedVariables) {
-							if(matches((Expression)expression, taintedVar)) {
-								createFeedback(node);
+			for(Rule sinkKey : sinkKeys) {
+				if(sinkKey.getKey().equals(nodeKey)) {
+					// I need to add a logger here if this doens't work TODO
+					if(sinkKey.isArgumentsRequired()) {
+						// is an argument a taintedVar?
+						for(Object expression : node.arguments()) {
+							for(String taintedVar : taintedVariables) {
+								if(matches((Expression)expression, taintedVar)) {
+									createFeedback(node);
+								}
 							}
 						}
+					} else {
+						createFeedback(node);
 					}
 				}
 			}
 			
-			for(String validationKey : validationKeys) {
-				if(validationKey.equals(nodeKey)) {
+			for(Rule validationKey : validationKeys) {
+				if(validationKey.getKey().equals(nodeKey)) {
 					// if any argument is a taintedvar:
 					for(Object expression : node.arguments()) {
 						for(String taintedVar : taintedVariables) {
@@ -151,8 +159,8 @@ public class SourceSinkAnalyser extends ASTVisitor {
 		private boolean expressionContainsSource(MethodInvocation node) {
 			IMethodBinding methodBinding = node.resolveMethodBinding();
 			String nodeKey = methodBinding.getKey();
-			for(String sourceKey : sourceKeys) {
-				if(sourceKey.equals(nodeKey)) {
+			for(Rule sourceKey : sourceKeys) {
+				if(sourceKey.getKey().equals(nodeKey)) {
 					return true;
 				}
 			}
@@ -169,8 +177,8 @@ public class SourceSinkAnalyser extends ASTVisitor {
 		private boolean expressionContainsValidation(MethodInvocation node) {
 			IMethodBinding methodBinding = node.resolveMethodBinding();
 			String nodeKey = methodBinding.getKey();
-			for(String validationKey : validationKeys) {
-				if(validationKey.equals(nodeKey)) {
+			for(Rule validationKey : validationKeys) {
+				if(validationKey.getKey().equals(nodeKey)) {
 					return true;
 				}
 			}

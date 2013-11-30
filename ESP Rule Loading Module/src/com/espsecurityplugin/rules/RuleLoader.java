@@ -18,10 +18,12 @@ import org.osgi.framework.Bundle;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.espsecurityplugin.rules.model.Rule;
+
 public class RuleLoader {
 	
-	public static List<String> loadRules(String location, boolean inBundle) throws IOException, ParserConfigurationException, SAXException {
-		List<String> rules = new ArrayList<String>();
+	public static List<Rule> loadRules(String location, boolean inBundle) throws IOException, ParserConfigurationException, SAXException {
+		List<Rule> rules = new ArrayList<Rule>();
 		
 		InputStream sourceInputStream;
 		if(inBundle) {

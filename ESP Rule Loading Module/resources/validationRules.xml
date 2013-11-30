@@ -1,4 +1,4 @@
-<!-- Java keys for Source methods -->
-<keys>
-	<key>Ljava/lang/String;.replaceAll(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;</key>
-</keys>
+<!-- Java rules for Source methods -->
+<rules>
+	<rule>Ljava/lang/String;.replaceAll(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;</rule>
+</rules>
