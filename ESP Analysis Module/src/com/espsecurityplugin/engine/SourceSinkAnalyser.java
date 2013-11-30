@@ -58,7 +58,8 @@ public class SourceSinkAnalyser extends ASTVisitor {
 				sourceKeys = RuleLoader.loadRules(sourceRuleLocation, false);
 			} catch (EmptyStackException exception) {
 				sourceKeys = RuleLoader.loadRules(defaultSourceRuleLocation, true);
-				// TODO raise an alert here.
+			} catch (NullPointerException exception) {
+				sourceKeys = RuleLoader.loadRules(defaultSourceRuleLocation, true);
 			}
 			
 			String sinkRuleLocation = Platform.getPreferencesService().getString("ESPSecurityPlugin", "sinkrules.location", null, null);
@@ -67,6 +68,8 @@ public class SourceSinkAnalyser extends ASTVisitor {
 				sinkKeys = RuleLoader.loadRules(sinkRuleLocation, false);
 			} catch (EmptyStackException exception) {
 				sinkKeys = RuleLoader.loadRules(defaultSinkRuleLocation, true);
+			} catch (NullPointerException exception) {
+				sinkKeys = RuleLoader.loadRules(defaultSinkRuleLocation, true);
 			}
 			
 			String validationRuleLocation = Platform.getPreferencesService().getString("ESPSecurityPlugin", "validationrules.location", null, null);
@@ -74,6 +77,8 @@ public class SourceSinkAnalyser extends ASTVisitor {
 			try {
 				validationKeys = RuleLoader.loadRules(validationRuleLocation, false);
 			} catch (EmptyStackException exception) {
+				validationKeys = RuleLoader.loadRules(defaultValidationRuleLocation, true);
+			} catch (NullPointerException exception) {
 				validationKeys = RuleLoader.loadRules(defaultValidationRuleLocation, true);
 			}
 			
