@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -38,8 +40,9 @@ import com.espsecurityplugin.feedback.FeedbackInstance;
 import com.espsecurityplugin.rules.RuleLoader;
 import com.espsecurityplugin.rules.model.Rule;
 
-// TODO move all the rule loading below into a module
 public class SourceSinkAnalyser extends ASTVisitor {
+	
+	Logger LOGGER = Logger.getLogger("SinkSourceAnalyser");
 	
 	// find based on QualifiedName. We've resolved bindings.
 	
@@ -192,7 +195,8 @@ public class SourceSinkAnalyser extends ASTVisitor {
 		
 		private Collection<String> simpleNameToString(SimpleName simpleName) {
 			Collection<String> result = new ArrayList<String>();
-			result.add(simpleName.getIdentifier());
+			result.add(simpleName.getFullyQualifiedName());
+			LOGGER.log(Level.INFO, "Adding to tainted vars: " + simpleName.getFullyQualifiedName());
 			return result;
 		}
 		
@@ -353,9 +357,9 @@ public class SourceSinkAnalyser extends ASTVisitor {
 				result.addAll(expressionToSimpleName(CastUtils.castList(Expression.class, ((MethodInvocation) expression).arguments())));
 				result.addAll(expressionToString(((MethodInvocation) expression).getExpression()));
 			}  else if(expression instanceof QualifiedName) {
-				result.add(((QualifiedName) expression).getName().getIdentifier());
+				result.add(((QualifiedName) expression).getFullyQualifiedName());
 			}  else if(expression instanceof SimpleName) {
-				result.add(((SimpleName)expression).getIdentifier());
+				result.add(((SimpleName)expression).getFullyQualifiedName());
 			}   else if(expression instanceof ParenthesizedExpression) {
 				result.addAll(expressionToString(((ParenthesizedExpression) expression).getExpression()));
 			}  else if(expression instanceof PostfixExpression) {
@@ -365,7 +369,9 @@ public class SourceSinkAnalyser extends ASTVisitor {
 			}  else if (expression instanceof SuperMethodInvocation) {
 				result.addAll(expressionToSimpleName(CastUtils.castList(Expression.class, ((SuperMethodInvocation) expression).arguments())));
 			} 
-			
+			for(String string : result) {
+				LOGGER.log(Level.INFO, "Adding to tainted vars, maybe: " + string);
+			}
 			return result;
 		}
 
