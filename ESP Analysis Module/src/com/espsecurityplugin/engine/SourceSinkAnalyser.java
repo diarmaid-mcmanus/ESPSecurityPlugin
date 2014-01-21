@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -38,8 +40,9 @@ import com.espsecurityplugin.feedback.FeedbackInstance;
 import com.espsecurityplugin.rules.RuleLoader;
 import com.espsecurityplugin.rules.model.Rule;
 
-// TODO move all the rule loading below into a module
 public class SourceSinkAnalyser extends ASTVisitor {
+	
+	Logger LOGGER = Logger.getLogger("SinkSourceAnalyser");
 	
 	// find based on QualifiedName. We've resolved bindings.
 	
@@ -53,35 +56,16 @@ public class SourceSinkAnalyser extends ASTVisitor {
 		public SourceSinkAnalyser() throws IOException, ParserConfigurationException, SAXException {
 			// get rules file from properties
 			String sourceRuleLocation = Platform.getPreferencesService().getString("ESPSecurityPlugin", "sourcerules.location", null, null);
-			String defaultSourceRuleLocation = "resources/sourceRules.xml"; //Activator.getDefault().getPreferenceStore().getString("sourcerules.location");
-			try {
-				sourceKeys = RuleLoader.loadRules(sourceRuleLocation, false);
-			} catch (EmptyStackException exception) {
-				sourceKeys = RuleLoader.loadRules(defaultSourceRuleLocation, true);
-			} catch (NullPointerException exception) {
-				sourceKeys = RuleLoader.loadRules(defaultSourceRuleLocation, true);
-			}
+			String defaultSourceRuleLocation = "resources/sourceRules.xml"; 
+			sourceKeys = loadRules(sourceRuleLocation, defaultSourceRuleLocation);
 			
 			String sinkRuleLocation = Platform.getPreferencesService().getString("ESPSecurityPlugin", "sinkrules.location", null, null);
-			String defaultSinkRuleLocation = "resources/sinkRules.xml"; //Activator.getDefault().getPreferenceStore().getString("sinkrules.location");
-			try {
-				sinkKeys = RuleLoader.loadRules(sinkRuleLocation, false);
-			} catch (EmptyStackException exception) {
-				sinkKeys = RuleLoader.loadRules(defaultSinkRuleLocation, true);
-			} catch (NullPointerException exception) {
-				sinkKeys = RuleLoader.loadRules(defaultSinkRuleLocation, true);
-			}
+			String defaultSinkRuleLocation = "resources/sinkRules.xml"; 
+			sinkKeys = loadRules(sinkRuleLocation, defaultSinkRuleLocation);
 			
 			String validationRuleLocation = Platform.getPreferencesService().getString("ESPSecurityPlugin", "validationrules.location", null, null);
-			String defaultValidationRuleLocation = "resources/validationRules.xml"; //Activator.getDefault().getPreferenceStore().getString("sinkrules.location");
-			try {
-				validationKeys = RuleLoader.loadRules(validationRuleLocation, false);
-			} catch (EmptyStackException exception) {
-				validationKeys = RuleLoader.loadRules(defaultValidationRuleLocation, true);
-			} catch (NullPointerException exception) {
-				validationKeys = RuleLoader.loadRules(defaultValidationRuleLocation, true);
-			}
-			
+			String defaultValidationRuleLocation = "resources/validationRules.xml"; 
+			validationKeys = loadRules(validationRuleLocation, defaultValidationRuleLocation);
 			
 			feedbackList = new ArrayList<FeedbackInstance>();
 			taintedVariables = new ArrayList<String>();
@@ -154,6 +138,23 @@ public class SourceSinkAnalyser extends ASTVisitor {
 			return true;
 		}
 		
+		/*
+		 * Loads the rules from ruleLocation, or defaultRuleLocation within 
+		 * the bundle if an error is caught
+		 */
+		private Collection<Rule> loadRules(String ruleLocation, String defaultRuleLocation) throws IOException, ParserConfigurationException, SAXException {
+			Collection<Rule> keys;
+			try {
+				keys = RuleLoader.loadRules(ruleLocation, false);
+			} catch (EmptyStackException exception) {
+				keys = RuleLoader.loadRules(defaultRuleLocation, true);
+			} catch (NullPointerException exception) {
+				keys = RuleLoader.loadRules(defaultRuleLocation, true);
+			}
+			
+			return keys;
+		}
+		
 		private boolean expressionContainsSource(Expression expression) {
 			if(expression instanceof MethodInvocation) {
 				return expressionContainsSource((MethodInvocation) expression);
@@ -192,7 +193,8 @@ public class SourceSinkAnalyser extends ASTVisitor {
 		
 		private Collection<String> simpleNameToString(SimpleName simpleName) {
 			Collection<String> result = new ArrayList<String>();
-			result.add(simpleName.getIdentifier());
+			result.add(simpleName.getFullyQualifiedName());
+			LOGGER.log(Level.INFO, "Adding to tainted vars: " + simpleName.getFullyQualifiedName());
 			return result;
 		}
 		
@@ -353,9 +355,9 @@ public class SourceSinkAnalyser extends ASTVisitor {
 				result.addAll(expressionToSimpleName(CastUtils.castList(Expression.class, ((MethodInvocation) expression).arguments())));
 				result.addAll(expressionToString(((MethodInvocation) expression).getExpression()));
 			}  else if(expression instanceof QualifiedName) {
-				result.add(((QualifiedName) expression).getName().getIdentifier());
+				result.add(((QualifiedName) expression).getFullyQualifiedName());
 			}  else if(expression instanceof SimpleName) {
-				result.add(((SimpleName)expression).getIdentifier());
+				result.add(((SimpleName)expression).getFullyQualifiedName());
 			}   else if(expression instanceof ParenthesizedExpression) {
 				result.addAll(expressionToString(((ParenthesizedExpression) expression).getExpression()));
 			}  else if(expression instanceof PostfixExpression) {
@@ -365,7 +367,9 @@ public class SourceSinkAnalyser extends ASTVisitor {
 			}  else if (expression instanceof SuperMethodInvocation) {
 				result.addAll(expressionToSimpleName(CastUtils.castList(Expression.class, ((SuperMethodInvocation) expression).arguments())));
 			} 
-			
+			for(String string : result) {
+				LOGGER.log(Level.INFO, "Adding to tainted vars, maybe: " + string);
+			}
 			return result;
 		}
 
