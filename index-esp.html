@@ -1,0 +1,79 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<script src="index-esp_files/jquery.js"></script>
+<style type="text/css">
+div { text-align: justify; }
+body { margin: 20px auto; width: 600px; }
+</style>
+<title>ESP: Security Plugin</title></head><body>
+<h1>This project is no longer maintained. This website exists for historical reasons. The Eclipse update site no longer exists.</h1><p />
+<a href="#" onclick="hideAll();$('#about').show();">About</a> | <a href="#" onclick="hideAll();$('#installation').show();">Installation</a> | 
+<a href="#" onclick="hideAll();$('#preferences').show();">Preferences</a> | <a href="#" onclick="hideAll();$('#usage').show();">Usage</a>
+
+<div id="about" style="display: block;">
+ESP: Security Plugin is a real-time static analysis utility for the Eclipse IDE.
+This security tool searches code for any security vulnerabilities as they're 
+introduced, passively working in the background at times least disruptive to 
+developers to provide immediate feedback on the code being created. This immediate
+feedback helps reinforce secure coding guidelines, offering a great companion 
+tool to secure coding awareness training, but also being effective in isolation.<p>
+
+ESP: Security Plugin is licensed under the MIT Open Source license. The code is available 
+on <a href="https://github.com/diarmaid-mcmanus/ESPSecurityPlugin">GitHub</a>. Follow 
+me on twitter for updates: <a href="https://www.twitter.com/hacors">@hacors</a>.
+</p></div>
+
+<div id="installation" style="display: none;">
+ESP: Security Plugin can be installed from within any Eclipse Indigo (3.7) and
+above workspace. To install, simply navigate to the "Help -&gt; Install New Software"
+window as shown:<br>
+
+<img src="index-esp_files/install01.png" alt="Install new software window">
+<br>
+
+In the window that appears, enter "http://update.espsecurityplugin.com/", select
+the plugin, and click 'Next'. Continue as normal for any other Eclipse extension.<br>
+
+<img src="index-esp_files/install02.png" alt="Install new software window">
+
+</div>
+
+<div id="preferences" style="display: none;">
+<img src="index-esp_files/preferences01.png" alt="preferences window">
+<br><br>
+'Time to Reconcile' is the time, in milliseconds, from when the user stops typing 
+until ESP: Security Plugin runs its analysis. This can be set to any number between 
+100 (0.1 seconds) and 5000 (5 seconds). Tweaking this number will affect the 
+responsiveness of the Eclipse workbench. The Rule Locations are additional rules 
+to define sources, sinks and validation nodes for ESP: Security Plugin. These are 
+XML files, containing the fully qualified name of a method. <br>
+
+<img src="index-esp_files/extension01.png" alt="extension xml">
+<br><br>
+
+While ESP: Security Plugin is being evaluated and tested, and while the rule 
+base grows, it may need to be disabled temporarily.
+</div>
+
+<div id="usage" style="display: none;">
+ESP: Security Plugin will begin to work automatically once it is installed. 
+When a Java file is opened and new code added, it shall automatically be scanned 
+for security issues. <br>
+
+<img src="index-esp_files/use01.png" alt="Plugin in use">
+<br><br>
+
+Options for ESP: Security Plugin are available on the Preferences page, through 
+"Window -&gt; Preferences".
+</div>
+
+<script type="text/javascript">
+function hideAll() {
+	$('#about').hide();
+	$('#installation').hide();
+	$('#preferences').hide();
+	$('#usage').hide();
+}
+</script>
+
+</body></html>
